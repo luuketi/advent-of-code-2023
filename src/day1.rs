@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use regex::Regex;
 use crate::inputs;
 use inputs::day1::{INPUT1, INPUT2, INPUT3};

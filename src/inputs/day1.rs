@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 pub const INPUT1 : &str = "1abc2
 pqr3stu8vwx
 a1b2c3d4e5f
