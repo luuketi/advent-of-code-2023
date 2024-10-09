@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use std::collections::{BTreeMap, HashSet};
+use std::str::Split;
 use crate::inputs::day4::{INPUT1, INPUT2};
 
 #[derive(Clone, Debug)]
@@ -69,12 +70,9 @@ impl CardPile {
             .matching_numbers(self.numbers.get((id - 1) as usize)
             .unwrap()
             .to_vec());
-        let copies: Vec<u32> = ((id + 1)..(id + 1 + matching_numbers)).collect();
+        let copies : Vec<u32> = ((id + 1)..(id + 1 + matching_numbers)).collect();
         for copy in copies {
-            *self.copies.get_mut(&copy).unwrap() += 1;
-            for _ in 0..*self.copies.get(&id).unwrap() {
-                *self.copies.get_mut(&copy).unwrap() += 1;
-            }
+            *self.copies.get_mut(&copy).unwrap() += 1 + *self.copies.get(&id).unwrap();
         }
 
     }
@@ -84,21 +82,26 @@ fn sum_points(input: &str) -> u32 {
     let mut total_points = 0;
     for line in input.split("\n") {
         let mut splitted_numbers = line.split(": ").last().unwrap().split(" | ");
-        let winning_numbers : Vec<u32>= splitted_numbers
-            .next()
-            .unwrap()
-            .split_whitespace()
-            .map(|n| n.parse::<u32>().unwrap())
-            .collect();
-        let numbers : Vec<u32> = splitted_numbers
-            .last()
-            .unwrap()
-            .split_whitespace()
-            .map(|n| n.parse::<u32>().unwrap())
-            .collect();
+        let (winning_numbers, numbers) = parse_numbers(&mut splitted_numbers);
         total_points += Card::new(0, winning_numbers).points(numbers);
     }
     total_points
+}
+
+fn parse_numbers(splitted_numbers: &mut Split<&str>) -> (Vec<u32>, Vec<u32>) {
+    let winning_numbers: Vec<u32> = splitted_numbers
+        .next()
+        .unwrap()
+        .split_whitespace()
+        .map(|n| n.parse::<u32>().unwrap())
+        .collect();
+    let numbers: Vec<u32> = splitted_numbers
+        .last()
+        .unwrap()
+        .split_whitespace()
+        .map(|n| n.parse::<u32>().unwrap())
+        .collect();
+    (winning_numbers, numbers)
 }
 
 fn count_total_cards(input: &str) -> u32 {
@@ -107,18 +110,7 @@ fn count_total_cards(input: &str) -> u32 {
         let mut splitted_line = line.split(": ");
         let id : u32 = splitted_line.next().unwrap().split(" ").last().unwrap().parse().unwrap();
         let mut splitted_numbers = splitted_line.last().unwrap().split(" | ");
-        let winning_numbers : Vec<u32>= splitted_numbers
-            .next()
-            .unwrap()
-            .split_whitespace()
-            .map(|n| n.parse::<u32>().unwrap())
-            .collect();
-        let numbers : Vec<u32> = splitted_numbers
-            .last()
-            .unwrap()
-            .split_whitespace()
-            .map(|n| n.parse::<u32>().unwrap())
-            .collect();
+        let (winning_numbers, numbers) = parse_numbers(&mut splitted_numbers);
         card_pile.add_card_and_numbers(Card::new(id, winning_numbers), numbers);
     }
     card_pile.total_cards()
